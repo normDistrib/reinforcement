@@ -204,3 +204,5 @@ About
 gitignore/Python.gitignore at main · github/gitignore
 **/logs
 **/figures
+
+**/notes.*

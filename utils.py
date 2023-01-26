@@ -118,9 +118,6 @@ def gradient(n,ts,tasks,alpha=0.1,base=True):
 
     """
 
-    def _get_pi(pos):
-        return np.exp(preferences[pos])/np.exp(preferences).sum()
-
     optimal = np.zeros(ts)
 
     for _ in range(tasks):
@@ -175,6 +172,67 @@ def gradient(n,ts,tasks,alpha=0.1,base=True):
 
     return optimal/tasks
 
+
+def gridworld_policy_eval(m,n,k,T,gamma=0.9):
+    """
+    Estimation of state value function for gridworld example.
+
+    The policy used is a random policy which chooses any possible
+    action randomly.
+
+    Actions = {up,down,left,right}. Can´t exit the grid.
+    States will be the positions in the grid.
+
+    State-value function is upgraded k times.
+
+    Params:
+        - m,n: Grid dimensions
+        - k: order of upgrade
+        - T: set of terminals states
+        - gamma: the discount parameter
+
+    Returns:
+        The upgraded state-value funcition for each state in form of a matrix.
+    """
+
+    #TODO: Not in-place algorithm
+
+    V = np.zeros((m,n)) # v(s) = 0 for all s
+
+    # Function to get possible actions for a state
+    def _A(s):
+        """
+        Returns all s' for s.
+        """
+        d = [-1,1]
+        return [(a,s[1]) for a in [x+s[0] for x in d] if a >=0 and a<m]\
+                +[(s[0],a) for a in [x+s[1] for x in d] if a >=0 and a<n]
+
+    def _update(s):
+        next_s = _A(s)
+
+        # pi(a|s) is same for every a in A(s)
+        pi = 1/len(next_s)
+
+        # only one s_p for a
+        # p(s_p,r|s,a) = 1 because of the definition of _A(s)
+        # r = -1 for all (s_p)\T
+        for s_p in next_s:
+            if s_p not in T:
+                V[s]+=1*(-1+gamma*V[s_p])
+            else:
+                V[s]+=1 # 1*(1+0)
+
+        V[s]*=pi
+
+    for _ in range(k):
+        for i in range(m):
+            for j in range(n):
+                s = (i,j)
+                if s not in T:
+                    _update(s)
+    return V
+
 if __name__ == '__main__':
 
     """
@@ -198,8 +256,13 @@ if __name__ == '__main__':
     plt.show()
     """
 
+    """
+
     # Gradient Bandit
     plt.plot(gradient(10,1000,500,alpha=0.1,base=True))
     plt.plot(gradient(10,1000,500,alpha=0.1,base=False))
     plt.ylim([0,1])
     plt.show()
+
+    """
+
