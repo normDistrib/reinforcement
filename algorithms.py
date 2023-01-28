@@ -1,3 +1,4 @@
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -173,7 +174,7 @@ def gradient(n,ts,tasks,alpha=0.1,base=True):
     return optimal/tasks
 
 
-def gridworld_policy_eval(m,n,k,T,gamma=0.9):
+def gridworld_policy_eval(m,n,k,T,gamma=0.9,inplace=True):
     """
     Estimation of state value function for gridworld example.
 
@@ -190,14 +191,16 @@ def gridworld_policy_eval(m,n,k,T,gamma=0.9):
         - k: order of upgrade
         - T: set of terminals states
         - gamma: the discount parameter
+        - inplace: whether or not use an inplace algorithm 
 
     Returns:
         The upgraded state-value funcition for each state in form of a matrix.
     """
 
-    #TODO: Not in-place algorithm
-
     V = np.zeros((m,n)) # v(s) = 0 for all s
+
+    if not inplace:
+        v = np.zeros((m,n))
 
     # Function to get possible actions for a state
     def _A(s):
@@ -212,18 +215,25 @@ def gridworld_policy_eval(m,n,k,T,gamma=0.9):
         next_s = _A(s)
 
         # pi(a|s) is same for every a in A(s)
-        pi = 1/len(next_s)
+        pi = 1/(len(next_s))
 
         # only one s_p for a
         # p(s_p,r|s,a) = 1 because of the definition of _A(s)
         # r = -1 for all (s_p)\T
+
         for s_p in next_s:
             if s_p not in T:
-                V[s]+=1*(-1+gamma*V[s_p])
+                if inplace:
+                    V[s]+=1*(-1+gamma*V[s_p])
+                else:
+                    V[s]+=1*(-1+gamma*v[s_p])
+
             else:
                 V[s]+=1 # 1*(1+0)
 
         V[s]*=pi
+        if not inplace:
+            v[:] = V[:]
 
     for _ in range(k):
         for i in range(m):
@@ -232,6 +242,9 @@ def gridworld_policy_eval(m,n,k,T,gamma=0.9):
                 if s not in T:
                     _update(s)
     return V
+
+def coin_example():
+    pass
 
 if __name__ == '__main__':
 

@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import gridworld_policy_eval
+from algorithms import gridworld_policy_eval
 
-M = 30
-N = 20
+M = 15
+N = 10
 
 def _A(s):
     d = [-1,1]
@@ -18,11 +18,13 @@ def _A(s):
     return [[(a,s[1]),dic1[x]] for a,x in [(x+s[0],x) for x in d] if a >=0 and a<M]\
             +[[(s[0],a),dic2[x]] for a,x in [(x+s[1],x) for x in d] if a >=0 and a<N]
 
-T = [(0,0),(5,7),(25,10),(M-1,N-1)]
-gw = gridworld_policy_eval(M,N,k=15,T=T,gamma=0.9)
+#T = [(0,0),(5,7),(25,10),(M-1,N-1)]
+T = [(0,0),(M-1,N-1)]
+gw = gridworld_policy_eval(M,N,k=15,T=T,gamma=0.99,inplace=False)
 
 
 plt.imshow(gw)
+
 
 for i in range(M):
     for j in range(N):
